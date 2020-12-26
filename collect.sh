@@ -4,6 +4,57 @@ VERSION='0.0.1'
 
 LOG="/tmp/collect.log"
 
+# Collect network interface data
+#
+#   Arguments:
+#         log - Path to log file
+#
+get_nic_data()
+{
+  log="$1"
+
+  net_dir="/sys/class/net/"
+  interface_list="$(ls "$net_dir")"
+  addr=''
+  for intf in $interface_list
+  do
+    echo $intf
+    if [ -z $intf ]; then
+      addr=0
+      break
+    fi
+
+    if [ ! "$intf" == "lo" ]; then
+      addr="$addr $(cat /sys/class/net/$intf/address)"
+    fi
+  done
+
+  nic_count="$($addr | tr ' ' '\n' | sort -u | wc -l)"
+  printf "NIC_COUNT=$(echo $addr | tr ' ' '\n' | sort -u | wc -l)\n"  >> $log
+}
+
+
+# Collect Data on CPU
+#
+#   Arguemnts:
+#         log - Path to log file
+#
+get_cpu_data()
+{
+  log=$1
+
+  model="$(awk -F '[[:space:]]+:[[:space:]]' '/model/ {print $2;exit}' /proc/cpuinfo)"
+  model_name="$(awk -F '[[:space:]]+:[[:space:]]' '/model name/ {print $2;exit}' /proc/cpuinfo)"
+  systype="$(awk -F '[[:space:]]+:[[:space:]]' '/system/ {print $2;exit}' /proc/cpuinfo)"
+  vendor_id="$(awk -F '[[:space:]]+:[[:space:]]' '/vendor_id/ {print $2;exit}' /proc/cpuinfo)"
+  num_cores=$(grep "core id" /proc/cpuinfo  | sort -u | wc -l)
+  num_proc=$(grep process /proc/cpuinfo  | uniq  - | wc -l)
+  printf "MODEL=%s\n" "$model" >> $log
+  printf "MODEL_NAME=%s\n" $model_name >> $log
+  printf "SYSTEM_TYPEi=$systype\n" >> $log
+  printf "VENDOR_ID=$vendor_id\n" >> $log
+  printf "CORE_THREADS=$num_cores:$num_proc\n" >> $log
+}
 
 # Generate ID
 #
@@ -73,9 +124,10 @@ get_uptime()
 #
 collect_basics()
 {
-  log=$1
-  generate_id $log
+  log="$1"
   get_uptime $log
+  get_cpu_data $log
+  get_nic_data $log
   get_memdata $log
 }
 
@@ -87,7 +139,9 @@ collect_basics()
 #
 collect_all()
 {
+  log="$1"
   echo "collect all"
+  collect_basics $log
 }
 
 
@@ -106,7 +160,9 @@ call_help()
 #
 read_config()
 {
+  conf_path="$1"
   echo "reading config"
+  source $conf_path
 }
 
 
@@ -140,7 +196,7 @@ main()
         shift
         ;;
       -c | --config)
-        read_config $2
+        read_config "$2"
         shift 2
         ;;
       -h | --help)
