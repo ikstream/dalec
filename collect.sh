@@ -18,8 +18,7 @@ get_nic_data()
   addr=''
   for intf in $interface_list
   do
-    echo $intf
-    if [ -z $intf ]; then
+    if [ -z "$intf" ]; then
       addr=0
       break
     fi
@@ -49,11 +48,11 @@ get_cpu_data()
   vendor_id="$(awk -F '[[:space:]]+:[[:space:]]' '/vendor_id/ {print $2;exit}' /proc/cpuinfo)"
   num_cores=$(grep "core id" /proc/cpuinfo  | sort -u | wc -l)
   num_proc=$(grep process /proc/cpuinfo  | uniq  - | wc -l)
-  printf "MODEL=%s\n" "$model" >> $log
-  printf "MODEL_NAME=%s\n" $model_name >> $log
-  printf "SYSTEM_TYPEi=$systype\n" >> $log
-  printf "VENDOR_ID=$vendor_id\n" >> $log
-  printf "CORE_THREADS=$num_cores:$num_proc\n" >> $log
+  { printf "MODEL=%s\n" "$model"; \
+  printf "MODEL_NAME=%s\n" "$model_name"; \
+  printf "SYSTEM_TYPEi=%s\n" "$systype"; \
+  printf "VENDOR_ID=%s\n" "$vendor_id"; \
+  printf "CORE_THREADS=%s:%s\n" "$num_cores" "$num_proc"; } >> $log
 }
 
 # Generate ID
@@ -79,7 +78,7 @@ generate_uid()
 
     uid=${uid}$(echo $mac | awk -F: '{print $2 $3 $4 $5 $6}')
   done
-  printf "UID=%s\n" $(echo $uid | sha256 | cut -c -32) >> $log
+  printf "UID=%s\n" "$(echo $uid | sha256 | cut -c -32)" >> $log
   unset uid
 }
 
