@@ -4,6 +4,18 @@ VERSION='0.0.1'
 
 LOG="/tmp/collect.log"
 
+# Collect version string with build infos
+#
+#   Arguments:
+#         log = Path to log file
+#
+get_version()
+{
+  log=$1
+
+  printf "VERSION=%s\n" "$(cat /proc/version)"
+}
+
 # Collect network interface data
 #
 #   Arguments:
