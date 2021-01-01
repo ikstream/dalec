@@ -13,7 +13,7 @@ get_version()
 {
   log=$1
 
-  printf "VERSION=%s\n" "$(cat /proc/version)"
+  printf "VERSION=%s\n" "$(cat /proc/version)"  >> $log
 }
 
 # Collect network interface data
@@ -40,8 +40,7 @@ get_nic_data()
     fi
   done
 
-  nic_count="$($addr | tr ' ' '\n' | sort -u | wc -l)"
-  printf "NIC_COUNT=$(echo $addr | tr ' ' '\n' | sort -u | wc -l)\n"  >> $log
+  printf "NIC_COUNT=%s\n" "$(echo $addr | tr ' ' '\n' | sort -u | wc -l)"  >> $log
 }
 
 
@@ -184,7 +183,7 @@ read_config()
 #
 main()
 {
-  args=$@
+  args="ARGV"
   options=abc:hl:v
   loptions=all,basic,config:,help,version
   command='basic'
@@ -252,4 +251,4 @@ main()
   esac
 }
 
-main "$@"
+main ARGV
