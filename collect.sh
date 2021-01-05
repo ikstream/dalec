@@ -188,14 +188,14 @@ main()
 {
   args="$@"
   options=abc:hl:v
-  loptions=all,basic,config:,help,version
+  loptions=all,basic,config:,help,log:,version
   command='basic'
 
 
-  ! parsed=$(getopt --options=$options --longoptions=$loptions "$args")
-  eval set -- "$parsed"
+  parsed=$(getopt --options=$options --longoptions=$loptions "$args") || \
+    exit $FAILURE eval set -- "$parsed"
 
-  while true; do
+  while [ $# -gt 0 ]; do
     case "$args" in
       -a | --all)
         command='all'
