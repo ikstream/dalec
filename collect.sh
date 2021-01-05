@@ -4,6 +4,9 @@ VERSION='0.0.1'
 
 LOG="/tmp/collect.log"
 
+FAILURE=1
+SUCCESS=0
+
 # Collect version string with build infos
 #
 #   Arguments:
@@ -183,20 +186,17 @@ read_config()
 #
 main()
 {
-  args="ARGV"
+  args="$@"
   options=abc:hl:v
   loptions=all,basic,config:,help,version
   command='basic'
 
 
-  ! parsed=$(getopt --options=$options --longoptions=$loptions --name "$0" -- $args)
-  if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
-      exit $FAILURE
-  fi
+  ! parsed=$(getopt --options=$options --longoptions=$loptions "$args")
   eval set -- "$parsed"
 
   while true; do
-    case "$1" in
+    case "$args" in
       -a | --all)
         command='all'
         shift
@@ -225,8 +225,9 @@ main()
         break
         ;;
       *)
+        printf "Error: Wrong or missing input! Usage:\n"
         call_help
-        break
+        exit $FAILURE
         ;;
     esac
   done
@@ -251,4 +252,4 @@ main()
   esac
 }
 
-main ARGV
+main "$@"
