@@ -60,8 +60,8 @@ get_cpu_data()
   model_name="$(awk -F '[[:space:]]+:[[:space:]]' '/model name/ {print $2;exit}' /proc/cpuinfo)"
   systype="$(awk -F '[[:space:]]+:[[:space:]]' '/system/ {print $2;exit}' /proc/cpuinfo)"
   vendor_id="$(awk -F '[[:space:]]+:[[:space:]]' '/vendor_id/ {print $2;exit}' /proc/cpuinfo)"
-  num_cores=$(grep "core id" /proc/cpuinfo  | sort -u | wc -l)
-  num_proc=$(grep process /proc/cpuinfo  | uniq  - | wc -l)
+  num_cores=$(awk '/^core/ {print $0}' /proc/cpuinfo  | sort -u | wc -l)
+  num_proc=$(awk '/^process/ {print $0}' /proc/cpuinfo  | sort -u | wc -l)
   { printf "MODEL=%s\n" "$model"; \
   printf "MODEL_NAME=%s\n" "$model_name"; \
   printf "SYSTEM_TYPEi=%s\n" "$systype"; \
