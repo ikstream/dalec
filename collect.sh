@@ -1,4 +1,8 @@
 #!/bin/sh
+#
+# TODO:
+# - change log to point to directory, for differentiated logfile keeping
+#
 
 VERSION='0.0.1'
 
@@ -24,7 +28,7 @@ get_version()
 #   Arguments:
 #         log - Path to log file
 #
-get_nic_data()
+get_nic_count()
 {
   log="$1"
 
@@ -43,7 +47,7 @@ get_nic_data()
     fi
   done
 
-  printf "NIC_COUNT=%s\n" "$(echo $addr | tr ' ' '\n' | sort -u | wc -l)"  >> $log
+  printf "INTERFACE_COUNT=%s\n" "$(echo $addr | tr ' ' '\n' | sort -u | wc -l)"  >> $log
 }
 
 
@@ -59,12 +63,14 @@ get_cpu_data()
   model="$(awk -F '[[:space:]]+:[[:space:]]' '/model/ {print $2;exit}' /proc/cpuinfo)"
   model_name="$(awk -F '[[:space:]]+:[[:space:]]' '/model name/ {print $2;exit}' /proc/cpuinfo)"
   systype="$(awk -F '[[:space:]]+:[[:space:]]' '/system/ {print $2;exit}' /proc/cpuinfo)"
+  machine="$(awk -F '[[:space:]]+:[[:space:]]' '/machine/ {print $2;exit}' /proc/cpuinfo)"
   vendor_id="$(awk -F '[[:space:]]+:[[:space:]]' '/vendor_id/ {print $2;exit}' /proc/cpuinfo)"
   num_cores=$(awk '/^core/ {print $0}' /proc/cpuinfo  | sort -u | wc -l)
   num_proc=$(awk '/^process/ {print $0}' /proc/cpuinfo  | sort -u | wc -l)
   { printf "MODEL=%s\n" "$model"; \
   printf "MODEL_NAME=%s\n" "$model_name"; \
-  printf "SYSTEM_TYPEi=%s\n" "$systype"; \
+  printf "SYSTEM_TYPE=%s\n" "$systype"; \
+  printf "MACHINE=%s\n" "$machine"; \
   printf "VENDOR_ID=%s\n" "$vendor_id"; \
   printf "CORE_THREADS=%s:%s\n" "$num_cores" "$num_proc"; } >> $log
 }
@@ -122,10 +128,31 @@ get_uptime()
   printf "UPTIME=%s\n" $time >> $log
 }
 
+get_lease_count()
+{
+  awk 'END{print NR}' /tmp/dhcp.leases
+}
+
+# Collect information about the network parameter
+#
+# This includes:
+#   - number of dhcp leases
+#   - nic vendor
+#
+# Arguments:
+#         log - Path to log file
+#
+collect_network()
+{
+  log="$1"
+
+  get_lease_count
+}
+
 
 # Start basic scanning
 #
-# This includes only most basic, not personal identifieable information:
+# This includes only most basic, no personal identifieable information:
 #   - Uptime
 #   - kernel version
 #   - release string
@@ -133,14 +160,16 @@ get_uptime()
 #   - number of Cores
 #   - disk size
 #   - Architecture
-#   - wifi chip
+#
+# Arguments:
+#         log - Path to log file
 #
 collect_basics()
 {
   log="$1"
   get_uptime $log
   get_cpu_data $log
-  get_nic_data $log
+  get_nic_count $log
   get_memdata $log
 }
 
@@ -187,45 +216,55 @@ read_config()
 main()
 {
   args="$@"
-  options=abc:hl:v
-  loptions=all,basic,config:,help,log:,version
+  options=ac:hl:nv
+  loptions=all,config:,help,log:,network,version
   command='basic'
 
 
-  parsed=$(getopt --options=$options --longoptions=$loptions "$args") || \
-    exit $FAILURE eval set -- "$parsed"
+  parsed=$(getopt -a -o $options --long $loptions -- $args)
+  if [ "$?" != "0" ]; then
+    call_help
+    exit $FAILURE
+  fi
 
-  while [ $# -gt 0 ]; do
-    case "$args" in
-      -a | --all)
-        command='all'
+  eval set -- "$parsed"
+
+  while true; do
+    echo "\$1:$1 \$2:$2"
+    case "$1" in
+      "-a" | "--all")
+        command='all';
         shift
         ;;
-      -b | --basic)
-        command='basic'
-        shift
-        ;;
-      -c | --config)
-        read_config "$2"
+      "-c" | "--config")
+        read_config "$2";
         shift 2
         ;;
-      -h | --help)
-        call_help
+      "-h" | "--help")
+        call_help;
         exit
         ;;
-      -l | --log)
-        c_log="$2"
+      "-l" | "--log")
+        c_log="$2";
         shift 2
         ;;
-      -v | --version)
+      "-n" | "--network")
+        command="$command network"
+        shift
+        ;;
+      "-v" | "--version")
         printf "Version: $VERSION\n"
         exit
         ;;
+      " ")
+        shift
+        ;;
       --)
+        shift
         break
         ;;
       *)
-        printf "Error: Wrong or missing input! Usage:\n"
+        printf "Error: Wrong or missing input ($1)! Usage:\n"
         call_help
         exit $FAILURE
         ;;
@@ -234,22 +273,31 @@ main()
 
   if [ -z $c_log ]; then
     log=$LOG
+  else
+    log=$c_log
   fi
 
   if [ -f "$log" ]; then
     rm $log
+  else
+    mkdir -p $(dirname $log)
   fi
 
-  case "$command" in
-    basic)
-      echo "collecting basics"
-      collect_basics "$log"
-      ;;
-    all)
-      echo "collecting all"
-      collect_all "$log"
-      ;;
-  esac
+  for c in $(echo $command | tr ' ' '\n'); do
+    case "$c" in
+      basic)
+        echo "collecting basics"
+        collect_basics "$log"
+        ;;
+      network)
+        echo "collecting network information"
+        ;;
+      all)
+        echo "collecting all"
+        collect_all "$log"
+        ;;
+    esac
+  done
 }
 
 main "$@"
