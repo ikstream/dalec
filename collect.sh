@@ -1,12 +1,12 @@
 #!/bin/sh
 #
 # TODO:
-# - change log to point to directory, for differentiated logfile keeping
+#     Add more error checking. Always check if file exist before reading it
 #
 
 VERSION='0.0.1'
 
-LOG="/tmp/collect.log"
+LOG="/tmp/da-lec"
 
 FAILURE=1
 SUCCESS=0
@@ -75,6 +75,7 @@ get_cpu_data()
   printf "CORE_THREADS=%s:%s\n" "$num_cores" "$num_proc"; } >> $log
 }
 
+
 # Generate ID
 #
 #  Arguments:
@@ -128,9 +129,15 @@ get_uptime()
   printf "UPTIME=%s\n" $time >> $log
 }
 
+# Get the number of dhcp leases
+#
+# Arguments:
+#       log - Path to logfile
+#
 get_lease_count()
 {
-  awk 'END{print NR}' /tmp/dhcp.leases
+  log=$1
+  printf "LEASE_COUNT=%s\n" "$(awk 'END{print NR}' /tmp/dhcp.leases)" >> $log
 }
 
 # Collect information about the network parameter
@@ -145,8 +152,15 @@ get_lease_count()
 collect_network()
 {
   log="$1"
+  network_log="$1/network.log"
 
-  get_lease_count
+  if [ ! -f $network_log ]; then
+    touch $network_log
+  else
+    echo '' > $network_log
+  fi
+
+  get_lease_count $network_log
 }
 
 
@@ -162,15 +176,23 @@ collect_network()
 #   - Architecture
 #
 # Arguments:
-#         log - Path to log file
+#         log - Path to log directory
 #
 collect_basics()
 {
   log="$1"
-  get_uptime $log
-  get_cpu_data $log
-  get_nic_count $log
-  get_memdata $log
+  basic_log="$log/basic.log"
+
+  if [ ! -f $basic_log ]; then
+    touch $basic_log
+  else
+    echo '' > $basic_log
+  fi
+
+  get_uptime $basic_log
+  get_cpu_data $basic_log
+  get_nic_count $basic_log
+  get_memdata $basic_log
 }
 
 
@@ -181,20 +203,22 @@ collect_basics()
 #
 collect_all()
 {
-  log="$1"
   echo "collect all"
-  collect_basics $log
+  collect_basics $1
+  collect_network $1
 }
 
 
-# print help
+# print help message
 #
 call_help()
 {
   printf "Collect data from linux systems\n"
   printf "\t -a, --all:\t collect all information\n"
-  printf "\t -b, --basic:\t collect basic information\n"
+  printf "\t -c, --config:\t provide path to config file\n"
   printf "\t -h, --help:\t print this help\n"
+  printf "\t -l, --log:\t set path for logfile\n"
+  printf "\t -n, --network:\t collect network information\n"
   printf "\t -v, --version:\t print version of script\n"
 }
 
@@ -277,10 +301,8 @@ main()
     log=$c_log
   fi
 
-  if [ -f "$log" ]; then
-    rm $log
-  else
-    mkdir -p $(dirname $log)
+  if [ ! -d "$log" ]; then
+    mkdir -p $log
   fi
 
   for c in $(echo $command | tr ' ' '\n'); do
