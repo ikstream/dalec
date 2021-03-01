@@ -1,5 +1,28 @@
-#!bin/sh
+#!/bin/sh
 
+DOMAIN="ikstream.net"
+
+
+# Retrieve the public key from server for encryption
+#
+# Returns:
+#       key: public key of server for encryption of messages
+#
+get_key()
+{
+  key=""
+  for i in {1..2};
+  do
+    key=$key$(dig $DOMAIN TXT | awk -F = "/pass$i/ { print $2 }")
+  done
+  echo $key
+}
+
+# Generate entropic data from memory technnology devices for salt and pass
+#
+# Returns:
+#       hash of all mtd devices
+#
 generate_data()
 {
   tmp_file='/tmp/gen.data'
@@ -18,6 +41,11 @@ generate_data()
   # rm $tmp_file
 }
 
+# Generate the ID for the device based on it's available MAC addresses
+#
+# Returns:
+#       hash: the sha512 hash of available MAC-addresses
+#
 generate_id()
 {
   if_list='';
@@ -43,6 +71,11 @@ generate_id()
   unset uid
 }
 
+# Encrypt the generated id, which is DNS conform and cropped to 32 byte
+#
+# Returns:
+#       enc_id: encrpted, dns conform and cropped id
+#
 encrypt_id()
 {
   mtd="$(find /dev/ -name 'mtd?ro')"
