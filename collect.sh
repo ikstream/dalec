@@ -15,7 +15,13 @@ check_size()
 {
   size=$1
 
-  if [ "$size" -le "8192" ]; then
+  if [ "$size" -le "1024" ]; then
+    echo "1"
+  elif [ "$size" -le "2048" ]; then
+    echo "2"
+  elif [ "$size" -le "4096" ]; then
+    echo "4"
+  elif [ "$size" -le "8192" ]; then
     echo "8"
   elif [ "$size" -le "16384" ]; then
     echo "16"
