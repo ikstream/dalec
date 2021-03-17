@@ -11,6 +11,37 @@ LOG="/tmp/da-lec"
 FAILURE=1
 SUCCESS=0
 
+check_size()
+{
+  size=$1
+
+  if [ "$size" -le "8192" ]; then
+    echo "8"
+  elif [ "$size" -le "16384" ]; then
+    echo "16"
+  elif [ "$size" -le "32768" ]; then
+    echo "32"
+  elif [ "$size" -le "65536" ]; then
+    echo "64"
+  elif [ "$size" -le "131072" ]; then
+    echo "128"
+  elif [ "$size" -le "262144" ]; then
+    echo "256"
+  elif [ "$size" -le "524288" ]; then
+    echo "512"
+  elif [ "$size" -le "1048576" ]; then
+    echo "1024"
+  elif [ "$size" -le "2097152" ]; then
+    echo "2048"
+  elif [ "$size" -le "4194304" ]; then
+    echo "4096"
+  elif [ "$size" -le "8388608" ]; then
+    echo "8092"
+  else
+    echo ">8092"
+  fi
+}
+
 # Collect version string with build infos
 #
 #   Arguments:
@@ -112,8 +143,8 @@ generate_uid()
 get_memdata()
 {
   log="$1"
-  printf "TOTALMEM=%d\n" $(awk '/MemTotal:/{print $2}' /proc/meminfo) >> $log
-  printf "AVAILMEM=%d\n" $(awk '/MemAvaila/{print $2}' /proc/meminfo) >> $log
+  printf "TOTALMEM=%s\n" $(check_size $(awk '/MemTotal:/{print $2}' /proc/meminfo)) >> $log
+  printf "AVAILMEM=%s\n" $(check_size $(awk '/MemAvaila/{print $2}' /proc/meminfo)) >> $log
 }
 
 
