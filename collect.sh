@@ -291,7 +291,6 @@ main()
   eval set -- "$parsed"
 
   while true; do
-    echo "\$1:$1 \$2:$2"
     case "$1" in
       "-a" | "--all")
         command='all';
