@@ -18,6 +18,12 @@ get_key()
   echo $key
 }
 
+get_statistics()
+{
+  logfile=$1
+  echo "$(awk -F = '{print $2}' $logfile | tr '\n' ';')"
+}
+
 # Generate entropic data from memory technnology devices for salt and pass
 #
 # Returns:
