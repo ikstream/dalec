@@ -163,7 +163,7 @@ get_uptime()
 {
   log=$1
   time="$(awk '{print $1}' /proc/uptime)"
-  printf "UPTIME=%s\n" $time >> $log
+  printf "UPTIME=%s\n" $time > $log
 }
 
 # Get the number of dhcp leases
