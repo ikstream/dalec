@@ -68,7 +68,7 @@ generate_id()
 
   for mac in $if_list;
   do
-    uid=${uid}$(echo $mac | awk -F: '{print $1 $2 $3 $4 $5 $6}')
+    uid=${uid}$(echo $mac | awk -F: '{print $1 $2 $3 $4 $5 $6}'| openssl dgst -sha512 )
   done
 
   hash="$(echo $uid | openssl dgst -sha512 | awk '{print $2}')"
@@ -87,7 +87,7 @@ encrypt_id()
   mtd="$(find /dev/ -name 'mtd?ro')"
   id="$(generate_id)"
   salt_length=16
-
+  echo "$id"
   if [ -z "$mtd" ]; then
     key=$(echo $id | tail -c $(( ${#id} - $salt_length )))
     salt=$(echo $id | head -c $salt_length)
