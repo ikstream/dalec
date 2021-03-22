@@ -2,7 +2,6 @@
 
 DOMAIN="ikstream.net"
 
-
 # Retrieve the public key from server for encryption
 #
 # Returns:
@@ -10,14 +9,27 @@ DOMAIN="ikstream.net"
 #
 get_key()
 {
+  key_file="public_key.pem"
   key=""
-  for i in {1..2};
+  key_pos="\$2"
+  echo "-----BEGIN PUBLIC KEY-----"  > $key_file
+  for i in {1..3};
   do
-    key=$key$(dig $DOMAIN TXT | awk -F = "/pass$i/ { print $2 }")
+    key=$key$(dig $DOMAIN TXT @8.8.8.8 | awk -F \;=\; "/pass$i/ { print $key_pos
+  }" | tr -d '"')
   done
-  echo $key
+  echo "$key" >> $key_file
+  echo "-----END PUBLIC KEY-----" >> $key_file
 }
 
+# retrieve the collected statistical data
+#
+# Arguments:
+#   logfile: path to logfile where data is stored
+#
+# Returns:
+#   statistical data concated
+#
 get_statistics()
 {
   logfile=$1
@@ -104,4 +116,5 @@ encrypt_id()
   echo $enc_id
 }
 
+get_key
 encrypt_id
