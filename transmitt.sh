@@ -1,6 +1,9 @@
 #!/bin/sh
 
 DOMAIN="ikstream.net"
+KEY_FILE="/tmp/public_key.pem"
+LOG_FILE="/tmp/dalec/basic.log"
+COLLECT="/usr/bin/dalec"
 
 # Retrieve the public key from server for encryption
 #
@@ -9,17 +12,16 @@ DOMAIN="ikstream.net"
 #
 get_key()
 {
-  key_file="public_key.pem"
   key=""
   key_pos="\$2"
-  echo "-----BEGIN PUBLIC KEY-----"  > $key_file
+  echo "-----BEGIN PUBLIC KEY-----"  > $KEY_FILE
   for i in {1..3};
   do
     key=$key$(dig $DOMAIN TXT @8.8.8.8 | awk -F \;=\; "/pass$i/ { print $key_pos
   }" | tr -d '"')
   done
-  echo "$key" >> $key_file
-  echo "-----END PUBLIC KEY-----" >> $key_file
+  echo "$key" >> $KEY_FILE
+  echo "-----END PUBLIC KEY-----" >> $KEY_FILE
 }
 
 # retrieve the collected statistical data
