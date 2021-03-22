@@ -24,7 +24,7 @@ get_key()
   echo "-----END PUBLIC KEY-----" >> $KEY_FILE
 }
 
-# retrieve the collected statistical data
+# collect and retrieve statistical data
 #
 # Arguments:
 #   logfile: path to logfile where data is stored
@@ -35,7 +35,26 @@ get_key()
 get_statistics()
 {
   logfile=$1
+  /bin/sh $COLLECT -l $logfile
   echo "$(awk -F = '{print $2}' $logfile | tr '\n' ';')"
+}
+
+# Encrypt collected stats and encode them base16
+#
+# Arguments:
+#   stat_data: data collected
+#
+# Returns:
+#   enc_data: encrypted and encoded data
+#
+encrypt_data()
+{
+  stat_data="$1"
+
+  enc_data=$(echo $stat_data | openssl rsautl -encrypt -inkey $KEY_FILE -pubin | \
+    openssl base64 | \
+    hexdump -v -e '/1 "%x"')
+  echo "$enc_data"
 }
 
 # Generate entropic data from memory technnology devices for salt and pass
@@ -118,5 +137,7 @@ encrypt_id()
   echo $enc_id
 }
 
+stats="$(get_statistics $LOG_FILE)"
 get_key
 encrypt_id
+enc_stats="$(encrypt_data $stats)"
