@@ -149,11 +149,20 @@ encrypt_id()
 chunk_data()
 {
   data="$1"
+
   if [ "$(expr ${#data} % 62)" -eq 0 ]; then
     splits=$(expr ${#data} / 62)
   else
     splits=$(expr $(expr ${#data} / 62) + 1)
   fi
+
+  # iterate over the data in steps of 62 byte
+  for i in $(seq 0 $(expr $splits - 1));
+  do
+    offset=$(expr 61 * $i)
+    chunks="${chunks}$(echo $data | cut $(expr 1 + $offset)-$(expr 61 + $offset))\n"
+  done
+  echo "$chunks"
 }
 
 # Transmitt enrypted and encoded data to server
