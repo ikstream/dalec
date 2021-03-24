@@ -122,7 +122,6 @@ encrypt_id()
   mtd="$(find /dev/ -name 'mtd?ro')"
   id="$(generate_id)"
   salt_length=16
-  echo "$id"
   if [ -z "$mtd" ]; then
     key=$(echo $id | tail -c $(( ${#id} - $salt_length )))
     salt=$(echo $id | head -c $salt_length)
@@ -132,11 +131,9 @@ encrypt_id()
     salt="$(echo $crypt_data | head -c $salt_length)"
   fi
 
-  enc_id=$(echo $id | \
-           openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 \
+  echo $(echo $id | openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 \
            -k "$key" -S "$salt" -base64 | \
            sed 's;[+/];;g' | head -c 32)
-  echo $enc_id
 }
 
 # split the data into chunks
@@ -160,9 +157,9 @@ chunk_data()
   # iterate over the data in steps of 62 byte
   for i in $(seq 0 $(expr $splits - 1));
   do
-    offset=$(expr 61 * "$i")
+    offset=$(expr 61 '*' "$i")
     printf "i: $i offset: $offset\n" >> strange.log
-    chunks="${chunks}$(echo $data | cut $(expr 1 + $offset)-$(expr 61 + $offset))\n"
+    chunks="${chunks}$(echo $data | cut -b $(expr 1 + $offset)-$(expr 61 + $offset)) "
   done
   echo "$chunks"
 }
@@ -175,7 +172,7 @@ chunk_data()
 transmitt_enc_data()
 {
   tdata="$1"
-  id=$2
+  eid=$(encrypt_id)
   chunked="$(chunk_data $tdata)"
   step=0
   msg_count=1
@@ -185,20 +182,23 @@ transmitt_enc_data()
   do
     msg="${msg}$label."
 
-    if [ "$step" -eq 3 ]; then
-      msg="${msg}${id}-${msg_count}.$STATS_SERVER"
+    if [ "$step" -eq 2 ]; then
+      msg="${msg}${eid}-${msg_count}.$STATS_SERVER"
+      printf "$msg\n" > msg.out
       dig $msg
       msg_count=$(expr $msg_count + 1)
       step=0
+      msg=''
       continue
     fi
 
     step=$(expr $step + 1)
   done
+  msg="${msg}${eid}-${msg_count}.$STATS_SERVER"
+  dig $msg
 }
 
 stats="$(get_statistics $LOG_FILE)"
 get_key
-eid=$(encrypt_id)
 enc_stats="$(encrypt_data $stats)"
-transmitt_enc_data "$enc_stats" "$eid"
+transmitt_enc_data "$enc_stats"
