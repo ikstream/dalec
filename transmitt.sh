@@ -4,6 +4,7 @@ DOMAIN="ikstream.net"
 KEY_FILE="/tmp/public_key.pem"
 LOG_FILE="/tmp/dalec/basic.log"
 COLLECT="/usr/bin/dalec"
+STATS_SERVER="owrt.sviks.de"
 
 # Retrieve the public key from server for encryption
 #
@@ -35,7 +36,7 @@ get_key()
 get_statistics()
 {
   logfile=$1
-  /bin/sh $COLLECT -l $logfile
+  /bin/sh $COLLECT -l "$logfile"
   echo "$(awk -F = '{print $2}' $logfile | tr '\n' ';')"
 }
 
@@ -70,7 +71,7 @@ generate_data()
   for i in $(seq 0 8);
   do
     data_file="/dev/mtd${i}ro"
-    if [ -c $data_file ]; then
+    if [ -c "$data_file" ]; then
       openssl dgst -sha512 $data_file | awk '{print $2}' >> $tmp_file
     fi
   done
@@ -159,7 +160,8 @@ chunk_data()
   # iterate over the data in steps of 62 byte
   for i in $(seq 0 $(expr $splits - 1));
   do
-    offset=$(expr 61 * $i)
+    offset=$(expr 61 * "$i")
+    printf "i: $i offset: $offset\n" >> strange.log
     chunks="${chunks}$(echo $data | cut $(expr 1 + $offset)-$(expr 61 + $offset))\n"
   done
   echo "$chunks"
@@ -173,11 +175,30 @@ chunk_data()
 transmitt_enc_data()
 {
   tdata="$1"
-  chunk_data "$tdata"
+  id=$2
+  chunked="$(chunk_data $tdata)"
+  step=0
+  msg_count=1
+  msg=""
+
+  for label in $chunked;
+  do
+    msg="${msg}$label."
+
+    if [ "$step" -eq 3 ]; then
+      msg="${msg}${id}-${msg_count}.$STATS_SERVER"
+      dig $msg
+      msg_count=$(expr $msg_count + 1)
+      step=0
+      continue
+    fi
+
+    step=$(expr $step + 1)
+  done
 }
 
 stats="$(get_statistics $LOG_FILE)"
 get_key
-encrypt_id
+eid=$(encrypt_id)
 enc_stats="$(encrypt_data $stats)"
-transmitt_enc_data "$enc_stats"
+transmitt_enc_data "$enc_stats" "$eid"
