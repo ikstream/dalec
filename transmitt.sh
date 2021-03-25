@@ -2,7 +2,8 @@
 
 DOMAIN="ikstream.net"
 KEY_FILE="/tmp/public_key.pem"
-LOG_FILE="/tmp/dalec/basic.log"
+LOG_PATH="/tmp/dalec"
+LOG_FILE="${LOG_PATH}/basic.log"
 COLLECT="/usr/bin/dalec"
 STATS_SERVER="owrt.sviks.de"
 
@@ -36,7 +37,6 @@ get_key()
 get_statistics()
 {
   logfile=$1
-  /bin/sh $COLLECT -l "$logfile"
   echo "$(awk -F = '{print $2}' $logfile | tr '\n' ';')"
 }
 
@@ -195,6 +195,7 @@ transmitt_enc_data()
   dig $msg
 }
 
+/bin/sh $COLLECT -l "$LOG_PATH"
 stats="$(get_statistics $LOG_FILE)"
 get_key
 enc_stats="$(encrypt_data $stats)"
