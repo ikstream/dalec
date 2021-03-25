@@ -107,7 +107,6 @@ generate_id()
   done
 
   hash="$(echo $uid | openssl dgst -sha512 | awk '{print $2}')"
-  #printf "UID=%s\n" $hash
   echo $hash
   unset uid
 }
@@ -158,7 +157,6 @@ chunk_data()
   for i in $(seq 0 $(expr $splits - 1));
   do
     offset=$(expr 61 '*' "$i")
-    printf "i: $i offset: $offset\n" >> strange.log
     chunks="${chunks}$(echo $data | cut -b $(expr 1 + $offset)-$(expr 61 + $offset)) "
   done
   echo "$chunks"
@@ -184,7 +182,6 @@ transmitt_enc_data()
 
     if [ "$step" -eq 2 ]; then
       msg="${msg}${eid}-${msg_count}.$STATS_SERVER"
-      printf "$msg\n" > msg.out
       dig $msg
       msg_count=$(expr $msg_count + 1)
       step=0
