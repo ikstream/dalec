@@ -240,7 +240,6 @@ collect_basics()
 #
 collect_all()
 {
-  echo "collect all"
   collect_basics $1
   collect_network $1
 }
@@ -264,7 +263,6 @@ call_help()
 read_config()
 {
   conf_path="$1"
-  echo "reading config"
   source $conf_path
 }
 
@@ -344,14 +342,11 @@ main()
   for c in $(echo $command | tr ' ' '\n'); do
     case "$c" in
       basic)
-        echo "collecting basics"
         collect_basics "$log"
         ;;
       network)
-        echo "collecting network information"
         ;;
       all)
-        echo "collecting all"
         collect_all "$log"
         ;;
     esac
