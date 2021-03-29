@@ -36,4 +36,4 @@ define Package/$(PKG_NAME)/install
 		$(INSTALL_DATA) ./tranmitt_data $(1)/usr/sbin/dalec
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,dalec))
