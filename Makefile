@@ -8,7 +8,7 @@ PKG_LICENSE:=GPL-3.0+
 PKG_LICENSE_FILES:=LICENSE
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/ikstream/$(PKG_NAME)/archive/refs/tags/$(PKG_VERSION)?
+PKG_SOURCE_URL:=https://github.com/ikstream/$(PKG_NAME)/archive/refs/tags/$(PKG_VERSION)
 PKG_HASH:=06e95bf4c181416351638dba98fbbfb36b10cf914d410296343179d030692338
 
 include $(INCLUDE_DIR)/package.mk
