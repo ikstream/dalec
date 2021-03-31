@@ -205,6 +205,7 @@ transmitt_enc_data()
       step=0
       msg=''
       send=1
+      sleep 1
       continue
     fi
 
