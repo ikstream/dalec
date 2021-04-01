@@ -113,34 +113,6 @@ get_cpu_data()
 }
 
 
-# Generate ID
-#
-#  Arguments:
-#         log - Path to log file
-#
-generate_uid()
-{
-  if_list='';
-  uid=''
-  for interface in $(ls /sys/class/net/);
-  do
-      if_list="${if_list} $(cat /sys/class/net/$interface/address)"
-  done;
-  if_list=$(echo $interface | tr ' ' '\n' | sort -u)
-
-  for mac in $if_list;
-  do
-    if [ "$mac" == "00:00:00:00:00:00" ]; then
-      continue
-    fi
-
-    uid=${uid}$(echo $mac | awk -F: '{print $2 $3 $4 $5 $6}')
-  done
-  printf "UID=%s\n" "$(echo $uid | sha256 | cut -c -32)" >> $log
-  unset uid
-}
-
-
 # Collect Memory data
 #
 #   Arguments:
@@ -166,6 +138,7 @@ get_uptime()
   printf "UPTIME=%s\n" $time > $log
 }
 
+
 # Get the number of dhcp leases
 #
 # Arguments:
@@ -176,6 +149,7 @@ get_lease_count()
   log=$1
   printf "LEASE_COUNT=%s\n" "$(awk 'END{print NR}' /tmp/dhcp.leases)" >> $log
 }
+
 
 # Collect information about the network parameter
 #
@@ -257,6 +231,7 @@ call_help()
   printf "\t -n, --network:\t collect network information\n"
   printf "\t -v, --version:\t print version of script\n"
 }
+
 
 # include config file
 #
@@ -352,5 +327,6 @@ main()
     esac
   done
 }
+
 
 main "$@"
