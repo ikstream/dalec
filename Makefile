@@ -27,9 +27,9 @@ define Build/Compile
 endef
 
 define Package/dalec/install
-  $(INSTALL_DIR) $(1)/usr/sbin/dalec
-  $(INSTALL_BIN) $(PKG_BUILD_DIR)/dalec $(1)/usr/bin/
-  $(INSTALL_BIN) $(PKG_BUILD_DIR)/tranmitt_data $(1)/usr/sbin/
+    $(INSTALL_DIR) $(1)/usr/sbin/dalec
+    $(INSTALL_BIN) $(PKG_BUILD_DIR)/dalec $(1)/usr/bin/
+    $(INSTALL_BIN) $(PKG_BUILD_DIR)/tranmitt_data $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,dalec))
