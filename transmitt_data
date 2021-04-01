@@ -218,6 +218,16 @@ transmitt_enc_data()
   fi
 }
 
+# Delay the start of the transmission between 5-60 minutes
+#
+delay_start()
+{
+  seconds=$(awk -v min=5 -v max=60 -v seed="$(od -An -N4 -tu4 /dev/urandom)" \
+    'BEGIN{srand(seed+0); print int(min+rand()*(max-min+1))}')
+  sleep $(expr $seconds '*' 60)
+}
+
+delay_start
 /bin/sh $COLLECT -l "$LOG_PATH"
 stats="$(get_statistics $LOG_FILE)"
 get_key
