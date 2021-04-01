@@ -27,9 +27,9 @@ define Build/Compile
 endef
 
 define Package/$(PKG_NAME)/install
-		$(INSTALL_DIR) $(1)/usr/sbin/dalec
-		$(INSTALL_BIN) ./dalec $(1)/usr/sbin/dalec/
-		$(INSTALL_DATA) ./transmitt_data $(1)/usr/sbin/dalec
+		$(INSTALL_DIR) $(1)/usr/sbin
+		$(INSTALL_BIN) ./dalec $(1)/usr/sbin/
+		$(INSTALL_DATA) ./transmitt_data $(1)/usr/sbin/
 endef
 
 define Package/$(PKG_NAME)/postinst
@@ -39,7 +39,7 @@ if [ -z /etc/crontabs/root ]; then
 	touch /etc/crontabs/root
 fi
 
-crontab -l -u root 2>/dev/null; echo 0 * * * * transmitt_data | crontab -u root -
+crontab -l -u root 2>/dev/null; echo "0 * * * * transmitt_data" | crontab -u root -
 echo "Created cronjob for data transmision for root"
 exit 0
 endef
