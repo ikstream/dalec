@@ -7,10 +7,6 @@ PKG_MAINTAINER:=Stefan Venz <stefan.venz@protonmail.com>
 PKG_LICENSE:=GPL-3.0+
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/ikstream/dalec/archive/refs/tags/$(PKG_VERSION).tar.gz
-PKG_HASH:=06e95bf4c181416351638dba98fbbfb36b10cf914d410296343179d030692338
-
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
