@@ -32,4 +32,16 @@ define Package/$(PKG_NAME)/install
 		$(INSTALL_DATA) ./transmitt_data $(1)/usr/sbin/dalec
 endef
 
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+
+if [ -z /etc/crontabs/root ]; then
+	touch /etc/crontabs/root
+fi
+
+crontab -l -u root 2>/dev/null; echo 0 */1 * * * transmitt_data | crontab -u root -
+echo "Created cronjob for data transmision for root"
+exit 0
+endef
+
 $(eval $(call BuildPackage,dalec))
