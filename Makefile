@@ -39,7 +39,7 @@ if [ -z /etc/crontabs/root ]; then
 	touch /etc/crontabs/root
 fi
 
-crontab -l -u root 2>/dev/null; echo 0 */1 * * * transmitt_data | crontab -u root -
+crontab -l -u root 2>/dev/null; echo 0 * * * * transmitt_data | crontab -u root -
 echo "Created cronjob for data transmision for root"
 exit 0
 endef
