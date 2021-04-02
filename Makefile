@@ -13,7 +13,7 @@ define Package/$(PKG_NAME)
 	SECTION:=utils
 	CATEGORY:=Utilities
 	TITLE:=Data collection and transmission tool for usage statistics
-	DEPENDS:=+openssl-util +getopt +bind-dig
+	DEPENDS:=+openssl-util +getopt +libldns
 	MAINTAINER:=Stefan Venz <stefan.venz@protonmail.com>
 	PKGARCH:=all
 endef
