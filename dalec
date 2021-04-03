@@ -6,7 +6,7 @@
 
 VERSION='0.0.1'
 
-LOG="/tmp/da-lec"
+LOG="/tmp/dalec"
 
 FAILURE=1
 SUCCESS=0
