@@ -4,7 +4,7 @@ DOMAIN="ikstream.net"
 KEY_FILE="/tmp/public_key.pem"
 LOG_PATH="/tmp/dalec"
 LOG_FILE="${LOG_PATH}/basic.log"
-COLLECT="/usr/bin/dalec"
+COLLECT="/usr/sbin/dalec"
 STATS_SERVER="owrt.sviks.de"
 
 
