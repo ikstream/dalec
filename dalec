@@ -311,7 +311,7 @@ main()
   fi
 
   if [ ! -d "$log" ]; then
-    mkdir -p $log
+    mkdir -p "$log"
   fi
 
   for c in $(echo $command | tr ' ' '\n'); do
