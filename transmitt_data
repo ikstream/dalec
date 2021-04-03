@@ -237,8 +237,7 @@ transmitt_enc_data()
 #
 delay_start()
 {
-  seconds=$(awk -v min=5 -v max=30 -v seed="$(od -An -N4 -tu4 /dev/urandom)" \
-    'BEGIN{srand(seed+0); print int(min+rand()*(max-min+1))}')
+  seconds=$(expr $(grep -ao '[0-5]' /dev/urandom | head -n 1) '*' $(grep -ao '[0-6]' /dev/urandom | head -n 1))
   sleep $(expr $seconds '*' 60)
 }
 
