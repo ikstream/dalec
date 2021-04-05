@@ -243,7 +243,7 @@ delay_start()
 }
 
 
-#delay_start
+delay_start
 /bin/sh $COLLECT -l "$LOG_PATH"
 stats="$(get_statistics $LOG_FILE)"
 get_key
