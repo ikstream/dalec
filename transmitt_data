@@ -185,7 +185,7 @@ chunk_data()
   # iterate over the data in steps of 62 byte
   for i in $(seq 0 $(( $splits - 1)));
   do
-    offset=$(( 61 * "$i"))
+    offset=$(( 61 * $i ))
     chunks="${chunks}$(echo $data | cut -b $(( 1 + $offset))-$(( 61 + $offset))) "
   done
 
