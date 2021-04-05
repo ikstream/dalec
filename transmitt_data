@@ -57,7 +57,7 @@ encrypt_data()
 {
   stat_data="$1"
 
-  enc_data=$(echo $stat_data | openssl rsautl -encrypt -inkey $KEY_FILE -pubin | \
+  enc_data=$(echo "$stat_data" | openssl rsautl -encrypt -inkey $KEY_FILE -pubin | \
     openssl base64 | \
     hexdump -v -e '/1 "%x"')
   echo "$enc_data"
@@ -78,7 +78,7 @@ generate_data()
   do
     data_file="/dev/mtd${i}ro"
     if [ -c "$data_file" ]; then
-      openssl dgst -sha512 $data_file | awk '{print $2}' >> $tmp_file
+      openssl dgst -sha512 "$data_file" | awk '{print $2}' >> $tmp_file
     fi
   done
 
@@ -97,24 +97,25 @@ generate_id()
 {
   if_list='';
   uid=''
+  net_dir="/sys/class/net"
 
   # TODO replace with find
-  for interface in $(ls /sys/class/net/);
+  for interface in $(find "$net_dir/");
   do
-    if [ "$interface" != 'lo' ]; then
-      if_list="${if_list} $(cat /sys/class/net/$interface/address)"
+    if [ "$(basename $interface)" != 'lo' ] && [ "$(basename $interface)" != 'net' ]; then
+      if_list="${if_list} $(cat $net_dir/$(basename $interface)/address)"
     fi
   done;
 
-  if_list=$(echo $if_list | tr ' ' '\n' | sort -u)
+  if_list="$(echo $if_list | tr ' ' '\n' | sort -u)"
 
   for mac in $if_list;
   do
-    uid=${uid}$(echo $mac | awk -F: '{print $1 $2 $3 $4 $5 $6}'| openssl dgst -sha512 )
+    uid=${uid}$(echo "$mac" | awk -F: '{print $1 $2 $3 $4 $5 $6}'| openssl dgst -sha512 )
   done
 
   hash="$(echo $uid | openssl dgst -sha512 | awk '{print $2}')"
-  echo $hash
+  echo "$hash"
   unset uid
 }
 
@@ -131,15 +132,15 @@ encrypt_id()
   salt_length=16
 
   if [ -z "$mtd" ]; then
-    key=$(echo $id | tail -c $(( ${#id} - $salt_length )))
-    salt=$(echo $id | head -c $salt_length)
+    key=$(echo "$id" | tail -c $(( ${#id} - $salt_length )))
+    salt=$(echo "$id" | head -c "$salt_length")
   else
     crypt_data="$(generate_data)"
-    key="$(echo $crypt_data | tail -c $(( ${#crypt_data} - $salt_length )))"
-    salt="$(echo $crypt_data | head -c $salt_length)"
+    key=$(echo "$crypt_data" | tail -c $(( ${#crypt_data} - $salt_length )))
+    salt=$(echo "$crypt_data" | head -c $salt_length)
   fi
 
-  echo $(echo $id | openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 \
+  echo $(echo "$id" | openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 \
            -k "$key" -S "$salt" -base64 | \
            sed 's;[+/];;g' | head -c 32)
 }
@@ -157,10 +158,10 @@ calc_splits() {
   base_data=$1
   size=$2
 
-  if [ "$(expr ${#base_data} % $size)" -eq 0 ]; then
-    splits=$(expr ${#base_data} / $size)
+  if [ "$(( ${#base_data} % $size))" -eq 0 ]; then
+    splits=$(( ${#base_data} / $size))
   else
-    splits=$(expr $(expr ${#base_data} / $size) + 1)
+    splits=$(( $(( ${#base_data} / $size)) + 1))
   fi
 
   echo "$splits"
@@ -182,10 +183,10 @@ chunk_data()
   splits=$(calc_splits "$data" 62)
 
   # iterate over the data in steps of 62 byte
-  for i in $(seq 0 $(expr $splits - 1));
+  for i in $(seq 0 $(( $splits - 1)));
   do
-    offset=$(expr 61 '*' "$i")
-    chunks="${chunks}$(echo $data | cut -b $(expr 1 + $offset)-$(expr 61 + $offset)) "
+    offset=$(( 61 * "$i"))
+    chunks="${chunks}$(echo $data | cut -b $(( 1 + $offset))-$(( 61 + $offset))) "
   done
 
   echo "$chunks"
@@ -215,7 +216,7 @@ transmitt_enc_data()
     if [ "$step" -eq 2 ]; then
       msg="${msg}${eid}-${msg_count}-${nr_msgs}.$STATS_SERVER"
       drill $msg > /dev/null
-      msg_count=$(expr $msg_count + 1)
+      msg_count=$(( $msg_count + 1))
       step=0
       msg=''
       send=1
@@ -223,7 +224,7 @@ transmitt_enc_data()
       continue
     fi
 
-    step=$(expr $step + 1)
+    step=$(( $step + 1 ))
   done
 
   if [ "$send" -eq 0 ]; then
@@ -237,12 +238,12 @@ transmitt_enc_data()
 #
 delay_start()
 {
-  seconds=$(expr $(grep -ao '[0-5]' /dev/urandom | head -n 1) '*' $(grep -ao '[0-6]' /dev/urandom | head -n 1))
-  sleep $(expr $seconds '*' 60)
+  seconds=$(( $(grep -ao '[0-5]' /dev/urandom | head -n 1) * $(grep -ao '[0-6]' /dev/urandom | head -n 1 )))
+  sleep $(( $seconds * 60 ))
 }
 
 
-delay_start
+#delay_start
 /bin/sh $COLLECT -l "$LOG_PATH"
 stats="$(get_statistics $LOG_FILE)"
 get_key
