@@ -234,12 +234,16 @@ transmitt_enc_data()
 }
 
 
-# Delay the start of the transmission between 5-60 minutes
+# Delay the start of the transmission between 0-60 minutes
 #
 delay_start()
 {
-  seconds=$(( $(grep -ao '[0-5]' /dev/urandom | head -n 1) * $(grep -ao '[0-6]' /dev/urandom | head -n 1 )))
-  sleep $(( $seconds * 60 ))
+  t1=$(grep -ao '[0-2]' /dev/urandom | head -n 1)
+  t2=$(grep -ao '[0-8]' /dev/urandom | head -n 1)
+  t3=$(grep -ao '[0-9]' /dev/urandom | head -n 1)
+  t4=$(grep -ao '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
+  t5=$(grep -ao '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
+  seconds=$(($t1 * $t2 * $t3 * $t4 * $t5))
 }
 
 
