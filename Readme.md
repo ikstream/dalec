@@ -27,13 +27,15 @@ It collects the following information without additional switches:
   - Machine Info
   - Vendor ID
   - Core and Thread count
-- Number of network interfaces
+- Kernel version
 
 ### -n | --network
 - collects number of DHCP leases
+- Number of network interfaces
 
 ### -a | --all:
 - collects all basic information and network information
+- Kernel compile information
 
 ## Usage
 
