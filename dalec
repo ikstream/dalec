@@ -184,6 +184,7 @@ collect_network()
     echo '' > $network_log
   fi
 
+  get_nic_count $network_log
   get_lease_count $network_log
 }
 
@@ -212,7 +213,6 @@ collect_basics()
 
   get_uptime $basic_log
   get_cpu_data $basic_log
-  get_nic_count $basic_log
   get_memdata $basic_log
   get_kernel $basic_log
 }
