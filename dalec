@@ -57,7 +57,7 @@ get_kernel()
 {
   log=$1
 
-  printf "KERNEL=%s\n" "$(awk '{print $3}' /proc/version)"  >> $log
+  printf "KERNEL=%s\n" "$(cat /proc/sys/kernel/osrelease)"  >> $log
 }
 
 
@@ -70,7 +70,7 @@ get_version()
 {
   log=$1
 
-  printf "VERSION=%s\n" "$(cat /proc/version)"  >> $log
+  printf "VERSION=%s\n" "$(cat /proc/sys/kernel/version)"  >> $log
 }
 
 # Collect network interface data
