@@ -3,7 +3,7 @@
 DOMAIN="ikstream.net"
 KEY_FILE="/tmp/public_key.pem"
 LOG_PATH="/tmp/dalec"
-UID_FILE="/tmp/dalec-id"
+UID_FILE="${LOG_PATH}/dalec-id"
 LOG_FILE="${LOG_PATH}/basic.log"
 COLLECT="/usr/sbin/dalec"
 STATS_SERVER="owrt.sviks.de"
