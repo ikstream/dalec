@@ -2,6 +2,9 @@
 
 Dalec is a **Da**ta Co**lec**tion tool for Linux based systems.<br>
 
+It aims to exterminate known hurdles for developers to collect user data
+from devices while keeping the privacy intact.
+
 The collected data is securely transmitted to a collection server using
 the hierarchical structure of the Domain Name System (DNS)
 
