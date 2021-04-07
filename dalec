@@ -4,7 +4,7 @@
 #     Add more error checking. Always check if file exist before reading it
 #
 
-VERSION='0.0.1'
+DALEC_VERSION='0.1.2'
 
 LOG="/tmp/dalec"
 
@@ -148,7 +148,7 @@ get_uptime()
 {
   log=$1
   time="$(awk '{print $1}' /proc/uptime)"
-  printf "UPTIME=%s\n" $time > $log
+  printf "UPTIME=%s\n" $time >> $log
 }
 
 
@@ -211,6 +211,7 @@ collect_basics()
     touch $basic_log
   fi
 
+  printf "DALEC_VERSION=%s\n" "$DALEC_VERSION" > $basic_log
   get_uptime $basic_log
   get_cpu_data $basic_log
   get_memdata $basic_log
