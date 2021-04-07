@@ -39,7 +39,7 @@ if [ -z /etc/crontabs/root ]; then
 	touch /etc/crontabs/root
 fi
 
-printf "$(crontab -l -u root 2>/dev/null)\n0 */4 * * * transmitt_data\n" | crontab -u root -
+printf "0 */4 * * * /bin/sh /usr/sbin/transmitt_data\n$(crontab -l -u root 2>/dev/null)" | crontab -u root -
 echo "Created cronjob for data transmision for root"
 echo "Please make sure, that the cron service is enabled"
 exit 0
