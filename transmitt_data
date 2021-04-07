@@ -3,6 +3,7 @@
 DOMAIN="ikstream.net"
 KEY_FILE="/tmp/public_key.pem"
 LOG_PATH="/tmp/dalec"
+UID_FILE="/tmp/dalec-id"
 LOG_FILE="${LOG_PATH}/basic.log"
 COLLECT="/usr/sbin/dalec"
 STATS_SERVER="owrt.sviks.de"
@@ -41,7 +42,7 @@ get_key()
 get_statistics()
 {
   logfile=$1
-  echo "$(awk -F = '{print $2}' $logfile | tr '\n' ';')"
+  echo "$(awk -F = '{print "\""$2"\""}' $logfile | tr '\n' ';' | tr ' ' '_' )"
 }
 
 
@@ -59,7 +60,7 @@ encrypt_data()
 
   enc_data=$(echo "$stat_data" | openssl rsautl -encrypt -inkey $KEY_FILE -pubin | \
     openssl base64 | \
-    hexdump -v -e '/1 "%x"')
+    hexdump -v -e '/1 "%02x"')
   echo "$enc_data"
 }
 
@@ -127,6 +128,11 @@ generate_id()
 #
 encrypt_id()
 {
+  if [ -f "$UID_FILE" ]; then
+    echo "$(cat $UID_FILE)"
+    return
+  fi
+
   mtd="$(find /dev/ -name 'mtd?ro')"
   id="$(generate_id)"
   salt_length=16
@@ -140,9 +146,10 @@ encrypt_id()
     salt=$(echo "$crypt_data" | head -c $salt_length)
   fi
 
-  echo $(echo "$id" | openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 \
+  printf "$(echo "$id" | openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 \
            -k "$key" -S "$salt" -base64 | \
-           sed 's;[+/];;g' | head -c 32)
+           sed 's;[+/];;g' | head -c 32)" >> $UID_FILE
+  echo "$(cat $UID_FILE)"
 }
 
 
@@ -238,11 +245,11 @@ transmitt_enc_data()
 #
 delay_start()
 {
-  t1=$(grep -ao '[0-2]' /dev/urandom | head -n 1)
-  t2=$(grep -ao '[0-8]' /dev/urandom | head -n 1)
-  t3=$(grep -ao '[0-9]' /dev/urandom | head -n 1)
-  t4=$(grep -ao '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
-  t5=$(grep -ao '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
+  t1=$(grep -ao -m 1 '[0-2]' /dev/urandom | head -n 1)
+  t2=$(grep -ao -m 1 '[0-8]' /dev/urandom | head -n 1)
+  t3=$(grep -ao -m 1 '[0-9]' /dev/urandom | head -n 1)
+  t4=$(grep -ao -m 1 '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
+  t5=$(grep -ao -m 1 '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
   seconds=$(($t1 * $t2 * $t3 * $t4 * $t5))
 }
 
