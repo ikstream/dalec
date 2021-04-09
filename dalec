@@ -90,8 +90,14 @@ get_kernel()
 get_version()
 {
   log=$1
+  kernel_vers=''
+  kernel_vers_file='/proc/sys/kernel/version'
 
-  printf "VERSION=%s\n" "$(cat /proc/sys/kernel/version)"  >> $log
+  if [ -f "$kernel_vers_file" ]; then
+    kernel_vers=$(cat "$kernel_vers_file")
+  fi
+
+  printf "VERSION=%s\n" "$kernel_vers"  >> $log
 }
 
 # Collect network interface data
@@ -138,6 +144,7 @@ get_cpu_data()
   vendor_id=""
   num_cores=""
   num_proc=""
+
   if [ -f $cpuinfo ]; then
     model=$(awk -F '[[:space:]]+:[[:space:]]' '/model/ {print $2;exit}' "$cpuinfo")
     model_name=$(awk -F '[[:space:]]+:[[:space:]]' '/model name/ {print $2;exit}' "$cpuinfo")
@@ -147,6 +154,7 @@ get_cpu_data()
     num_cores=$(awk '/^core/ {print $0}' "$cpuinfo"  | sort -u | wc -l)
     num_proc=$(awk '/^process/ {print $0}' "$cpuinfo"  | sort -u | wc -l)
   fi
+
   { printf "MODEL=%s\n" "$model"; \
   printf "MODEL_NAME=%s\n" "$model_name"; \
   printf "SYSTEM_TYPE=%s\n" "$systype"; \
@@ -164,13 +172,13 @@ get_cpu_data()
 get_memdata()
 {
   log="$1"
-  memfile='/proc/meminfo/'
+  memfile='/proc/meminfo'
   tot_mem=''
   avail_mem=''
 
   if [ -f "$memfile" ]; then
-    tot_mem="$(check_size $(awk '/MemTotal:/{print $2}' $memfile))"
-    avail_mem="$(check_size $(awk '/MemAvaila/{print $2}' $memfile))"
+    tot_mem=$(check_size $(awk '/MemTotal:/{print $2}' "$memfile"))
+    avail_mem=$(check_size $(awk '/MemAvaila/{print $2}' "$memfile"))
   fi
 
   printf "TOTALMEM=%s\n" "$tot_mem" >> $log
@@ -205,7 +213,14 @@ get_uptime()
 get_lease_count()
 {
   log=$1
-  printf "LEASE_COUNT=%s\n" "$(awk 'END{print NR}' /tmp/dhcp.leases)" >> $log
+  lease_file="/tmp/dhcp.leases"
+  lease_count=''
+
+  if [ -f "$lease_file" ]; then
+    lease_count=$(awk 'END{print NR}' "$lease_file")
+  fi
+
+  printf "LEASE_COUNT=%s\n" "$lease_count" >> $log
 }
 
 
