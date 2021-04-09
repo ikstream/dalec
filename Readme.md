@@ -18,12 +18,22 @@ They are split over multiple requests, recombined on the server side and
 decrypted.
 
 
-# WARNING: with the installation of this package you agree, that your basic stats are collected. Theses basic stats can be seen below.
+# WARNING:This software is intended for data collection!
+If you agree, that your basic data is collected, run the command below to
+enable the collection.
+
+To enable this software run this command form command line on your device:
+```
+printf "0 */4 * * * /bin/sh /usr/sbin/transmitt_data\n$(crontab -l -u root 2>/dev/null)" | crontab -u root -
+```
+
+For further information please review our [privacy policy](./docs/statement.md)
 
 ### basic
 
 It collects the following information without additional switches:
 
+- Software version
 - Available and total RAM (in 2^n categories)
 - Uptime
 - CPU data:
