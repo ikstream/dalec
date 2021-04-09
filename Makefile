@@ -42,6 +42,8 @@ fi
 printf "0 */4 * * * /bin/sh /usr/sbin/transmitt_data\n$(crontab -l -u root 2>/dev/null)" | crontab -u root -
 echo "Created cronjob for data transmision for root"
 echo "Please make sure, that the cron service is enabled"
+echo "With the installation of this package you agreed, that your data is collected"
+echo "as stated in https://github.com/ikstream/dalec"
 exit 0
 endef
 

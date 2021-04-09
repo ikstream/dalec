@@ -17,6 +17,9 @@ These chunks will be the labels in a DNS-request.
 They are split over multiple requests, recombined on the server side and
 decrypted.
 
+
+# WARNING: with the installation of this package you agree, that your basic stats are collected. Theses basic stats can be seen below.
+
 ### basic
 
 It collects the following information without additional switches:
