@@ -56,8 +56,14 @@ check_size()
 get_kernel()
 {
   log=$1
+  release_file='/proc/sys/kernel/osrelease'
 
-  printf "KERNEL=%s\n" "$(cat /proc/sys/kernel/osrelease)"  >> $log
+  if [ -f $release_file ]; then
+    kernel="$(cat $release_file)"
+  else
+    kernel=''
+  fi
+  printf "KERNEL=%s\n" "$kernel"  >> $log
 }
 
 
