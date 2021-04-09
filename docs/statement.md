@@ -42,7 +42,7 @@ transmitted.
 - Kernel version
 
 The legal basis for the processing of this data is legitimate interests
-pursuant to Art. 6 para. 1 UAbs. 1 letter f) DSGVO, in order to enable the
+pursuant to Art. 6 para. 1 subpara. 1 letter f) GDPR, in order to enable the
 presentation of statistics for the master thesis.
 
 ## Your rights
