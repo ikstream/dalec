@@ -44,6 +44,7 @@ It collects the following information without additional switches:
   - Vendor ID
   - Core and Thread count
 - Kernel version
+- Architecture
 
 ### -n | --network
 - collects number of DHCP leases
