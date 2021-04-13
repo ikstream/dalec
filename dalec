@@ -4,7 +4,7 @@
 #     Add more error checking. Always check if file exist before reading it
 #
 
-DALEC_VERSION='0.1.2'
+DALEC_VERSION='0.1.3'
 
 LOG="/tmp/dalec"
 
@@ -48,10 +48,25 @@ check_size()
   fi
 }
 
+# Get the architecture of the system
+#
+#   Arguments:
+#         log - Path to log file
+get_architecture()
+{
+  log=$1
+  ret=$(command uname &> /dev/null; echo $?)
+
+  if [ "$ret" -eq 0 ]; then
+    printf "ARCH=%s\n" "$(uname -m)" >> "$log"
+  fi
+}
+
+
 # Get the kernel version
 #
 #   Arguments:
-#         log = Path to log file
+#         log - Path to log file
 #
 get_kernel()
 {
@@ -70,7 +85,7 @@ get_kernel()
 # Collect version string with build infos
 #
 #   Arguments:
-#         log = Path to log file
+#         log - Path to log file
 #
 get_version()
 {
@@ -213,15 +228,16 @@ collect_basics()
 {
   basic_log="$1"
 
-  if [ ! -f $basic_log ]; then
-    touch $basic_log
+  if [ ! -f "$basic_log" ]; then
+    touch "$basic_log"
   fi
 
-  printf "DALEC_VERSION=%s\n" "$DALEC_VERSION" > $basic_log
-  get_uptime $basic_log
-  get_cpu_data $basic_log
-  get_memdata $basic_log
-  get_kernel $basic_log
+  printf "DALEC_VERSION=%s\n" "$DALEC_VERSION" > "$basic_log"
+  get_uptime "$basic_log"
+  get_cpu_data "$basic_log"
+  get_memdata "$basic_log"
+  get_kernel "$basic_log"
+  get_architecture "$basic_log"
 }
 
 
