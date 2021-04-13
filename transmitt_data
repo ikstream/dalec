@@ -103,7 +103,8 @@ generate_id()
   # TODO replace with find
   for interface in $(find "$net_dir/");
   do
-    if [ "$(basename $interface)" != 'lo' ] && [ "$(basename $interface)" != 'net' ]; then
+    device_type=$(echo $(readlink "$interface") | awk -F / '{print $4}')
+    if [ "$device_type" != 'virtual' ] && [ "$(basename $interface)" != 'net' ]; then
       if_list="${if_list} $(cat $net_dir/$(basename $interface)/address)"
     fi
   done;
