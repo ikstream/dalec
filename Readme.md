@@ -53,6 +53,25 @@ It collects the following information without additional switches:
 - collects all basic information and network information
 - Kernel compile information
 
+## Depencies
+
+For an OpenWrt system you need
+
+```
+openssl-util
+getopt
+drill
+```
+
+Optionaly you may want to install
+
+```
+coreutils-uname
+```
+
+to allow the tramission of the architecture of your system
+
+
 ## Usage
 
 ```
