@@ -54,6 +54,33 @@ It collects the following information without additional switches:
 - collects all basic information and network information
 - Kernel compile information
 
+## Adding it to the build process
+
+To compile dalec for your system add:
+
+```
+src-git dalec https://github.com/ikstream/dalec.git
+```
+
+to your `feeds.conf.default`.
+Afterwards run:
+
+```
+./scripts/feeds update dalec
+./scripts/feeds install dalec
+```
+
+Select dalec dalec in:
+```
+make menuconfig
+```
+
+under `Utilities` and run:
+
+```
+make package/feeds/dalec/dalec/compile
+```
+
 ## Depencies
 
 For an OpenWrt system you need
