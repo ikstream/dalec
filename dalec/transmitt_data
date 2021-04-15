@@ -246,10 +246,10 @@ transmitt_enc_data()
 #
 delay_start()
 {
-  t1=$(grep -ao -m 1 '[0-2]' /dev/urandom | head -n 1)
-  t2=$(grep -ao -m 1 '[0-8]' /dev/urandom | head -n 1)
-  t3=$(grep -ao -m 1 '[0-9]' /dev/urandom | head -n 1)
-  t4=$(grep -ao -m 1 '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
+  t1=$(grep -ao -m 1 '[1-2]' /dev/urandom | head -n 1)
+  t2=$(grep -ao -m 1 '[1-8]' /dev/urandom | head -n 1)
+  t3=$(grep -ao -m 1 '[1-9]' /dev/urandom | head -n 1)
+  t4=$(grep -ao -m 1 '[1-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
   t5=$(grep -ao -m 1 '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
   seconds=$(($t1 * $t2 * $t3 * $t4 * $t5))
 }
