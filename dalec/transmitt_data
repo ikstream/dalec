@@ -75,7 +75,7 @@ generate_data()
   tmp_file='/tmp/gen.data'
   data=$(find /dev/ -name 'mtd?ro')
 
-  for i in $(seq 0 8);
+  for i in $(seq 0 6);
   do
     data_file="/dev/mtd${i}ro"
     if [ -c "$data_file" ]; then
@@ -84,6 +84,11 @@ generate_data()
   done
 
   data=$(openssl dgst -sha3-512 $tmp_file | awk '{print $2}')
+
+  if [ -f $tmp_file ]; then
+    rm $tmp_file
+  fi
+
   echo "$data"
   # rm $tmp_file
 }
@@ -112,7 +117,8 @@ generate_id()
 
   for mac in $if_list;
   do
-    uid="${uid}$(echo "$mac" | openssl dgst -sha3-512 | awk '{print $2}')"
+    uid=${uid}$(echo "$mac" | awk -F: '{print $1 $2 $3 $4 $5 $6}' | \
+                openssl dgst -sha3-512 | awk '{print $2}')
   done
 
   hash="$(echo $uid | openssl dgst -sha3-512 | awk '{print $2}')"
