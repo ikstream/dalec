@@ -55,6 +55,7 @@ check_size()
 get_architecture()
 {
   log=$1
+
   ret=$(command uname &> /dev/null; echo $?)
 
   if [ "$ret" -eq 0 ]; then
@@ -71,6 +72,7 @@ get_architecture()
 get_kernel()
 {
   log=$1
+
   release_file='/proc/sys/kernel/osrelease'
 
   if [ -f $release_file ]; then
@@ -90,6 +92,7 @@ get_kernel()
 get_version()
 {
   log=$1
+
   kernel_vers=''
   kernel_vers_file='/proc/sys/kernel/version'
 
@@ -136,6 +139,7 @@ get_nic_count()
 get_cpu_data()
 {
   log=$1
+
   cpuinfo='/proc/cpuinfo'
   model=""
   model_name=""
@@ -172,6 +176,7 @@ get_cpu_data()
 get_memdata()
 {
   log="$1"
+
   memfile='/proc/meminfo'
   tot_mem=''
   avail_mem=''
@@ -194,6 +199,7 @@ get_memdata()
 get_uptime()
 {
   log=$1
+
   upfile='/proc/uptime'
   time=''
 
@@ -213,6 +219,7 @@ get_uptime()
 get_lease_count()
 {
   log=$1
+
   lease_file="/tmp/dhcp.leases"
   lease_count=''
 
@@ -236,6 +243,7 @@ get_lease_count()
 collect_network()
 {
   log="$1"
+
   network_log="$1/network.log"
 
   if [ ! -f $network_log ]; then
@@ -291,6 +299,7 @@ collect_basics()
 collect_all()
 {
   log_p="$1"
+
   ext_log="$log_p/extended.log"
   collect_basics "$ext_log"
   get_version "$ext_log"
@@ -312,15 +321,6 @@ call_help()
 }
 
 
-# include config file
-#
-read_config()
-{
-  conf_path="$1"
-  source $conf_path
-}
-
-
 # main function
 #
 # Arguments:
@@ -329,6 +329,7 @@ read_config()
 main()
 {
   args="$@"
+
   options=ac:hl:nv
   loptions=all,config:,help,log:,network,version
   command='basic'
