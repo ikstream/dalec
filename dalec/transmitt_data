@@ -79,11 +79,11 @@ generate_data()
   do
     data_file="/dev/mtd${i}ro"
     if [ -c "$data_file" ]; then
-      openssl dgst -sha512 "$data_file" | awk '{print $2}' >> $tmp_file
+      openssl dgst -sha3-512 "$data_file" | awk '{print $2}' >> $tmp_file
     fi
   done
 
-  data=$(openssl dgst -sha512 $tmp_file | awk '{print $2}')
+  data=$(openssl dgst -sha3-512 $tmp_file | awk '{print $2}')
   echo "$data"
   # rm $tmp_file
 }
@@ -100,7 +100,6 @@ generate_id()
   uid=''
   net_dir="/sys/class/net"
 
-  # TODO replace with find
   for interface in $(find "$net_dir/");
   do
     device_type=$(echo $(readlink "$interface") | awk -F / '{print $4}')
@@ -113,10 +112,10 @@ generate_id()
 
   for mac in $if_list;
   do
-    uid=${uid}$(echo "$mac" | awk -F: '{print $1 $2 $3 $4 $5 $6}'| openssl dgst -sha512 )
+    uid="${uid}$(echo "$mac" | openssl dgst -sha3-512 | awk '{print $2}')"
   done
 
-  hash="$(echo $uid | openssl dgst -sha512 | awk '{print $2}')"
+  hash="$(echo $uid | openssl dgst -sha3-512 | awk '{print $2}')"
   echo "$hash"
   unset uid
 }
@@ -149,7 +148,8 @@ encrypt_id()
 
   printf "$(echo "$id" | openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 \
            -k "$key" -S "$salt" -base64 | \
-           sed 's;[+/];;g' | head -c 32)" >> $UID_FILE
+           tr -d '\n' | \
+           sed 's;[^a-zA-z0-9];;g' | tail -c 32)" >> $UID_FILE
   echo "$(cat $UID_FILE)"
 }
 
