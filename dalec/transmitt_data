@@ -73,14 +73,10 @@ encrypt_data()
 generate_data()
 {
   tmp_file='/tmp/gen.data'
-  data=$(find /dev/ -name 'mtd?ro')
 
-  for i in $(seq 0 6);
+  for part in $(awk -F : '/u-boot|art|factory/{print $1}' /proc/mtd);
   do
-    data_file="/dev/mtd${i}ro"
-    if [ -c "$data_file" ]; then
-      openssl dgst -sha3-512 "$data_file" | awk '{print $2}' >> $tmp_file
-    fi
+    openssl dgst -sha3-512 "/dev/$part" | awk '{print $2}' >> $tmp_file
   done
 
   data=$(openssl dgst -sha3-512 $tmp_file | awk '{print $2}')
@@ -139,17 +135,16 @@ encrypt_id()
     return
   fi
 
-  mtd="$(find /dev/ -name 'mtd?ro')"
   id="$(generate_id)"
   salt_length=16
 
-  if [ -z "$mtd" ]; then
-    key=$(echo "$id" | tail -c $(( ${#id} - $salt_length )))
-    salt=$(echo "$id" | head -c "$salt_length")
-  else
+  if [ -f "/proc/mtd" ]; then
     crypt_data="$(generate_data)"
     key=$(echo "$crypt_data" | tail -c $(( ${#crypt_data} - $salt_length )))
     salt=$(echo "$crypt_data" | head -c $salt_length)
+  else
+    key=$(echo "$id" | tail -c $(( ${#id} - $salt_length )))
+    salt=$(echo "$id" | head -c "$salt_length")
   fi
 
   printf "$(echo "$id" | openssl enc -aes-256-cbc -md sha512 -pbkdf2 -iter 100000 \
@@ -260,6 +255,9 @@ delay_start()
   seconds=$(($t1 * $t2 * $t3 * $t4 * $t5))
 }
 
+if [ ! -d '/tmp/dalec' ]; then
+  mkdir '/tmp/dalec'
+fi
 
 delay_start
 /bin/sh $COLLECT -l "$LOG_PATH"
