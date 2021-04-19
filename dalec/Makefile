@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dalec
-PKG_VERSION:=0.1.4
+PKG_VERSION:=0.1.6
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Stefan Venz <stefan.venz@protonmail.com>
 PKG_LICENSE:=GPL-3.0+
@@ -39,8 +39,13 @@ if [ -z /etc/crontabs/root ]; then
 	touch /etc/crontabs/root
 fi
 
+sed -i '/^#[^!]*$$/d' /usr/sbin/dalec
+sed -i '/^#[^!]*$$/d' /usr/sbin/transmitt_data
+sed -i '/^$$/d' /usr/sbin/dalec
+sed -i '/^$$/d' /usr/sbin/transmitt_data
+
 echo "If you consent, that this software may collect your data, please run the follwing command"
-echo 'printf "0 */4 * * * /bin/sh /usr/sbin/transmitt_data\n$(crontab -l -u root 2>/dev/null)" | crontab -u root -'
+echo 'printf "0 */4 * * * /bin/sh /usr/sbin/transmitt_data\n\$$(crontab -l -u root 2>/dev/null)" | crontab -u root -'
 echo "Please make sure, that the cron service is enabled"
 echo "To get further information, please visit https://github.com/ikstream/dalec"
 exit 0
