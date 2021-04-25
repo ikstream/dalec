@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dalec
-PKG_VERSION:=0.1.6
+PKG_VERSION:=0.1.7
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Stefan Venz <stefan.venz@protonmail.com>
 PKG_LICENSE:=GPL-3.0+

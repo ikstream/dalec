@@ -4,7 +4,7 @@
 #     Add more error checking. Always check if file exist before reading it
 #
 
-DALEC_VERSION='0.1.6'
+DALEC_VERSION='0.1.7'
 
 LOG="/tmp/dalec"
 
