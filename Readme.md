@@ -112,3 +112,12 @@ dalec
  -v | --version                   # Show version info
 ```
 
+## Install on older releases
+
+- To use dalec with OpenWrt release **18.06.9** you would need to install recent
+versions of `libopenssl`, `libopenssl-conf` and `openssl-util` manually
+
+- To use dalec with OpenWrt release **17.01.7** you would need to install recent
+versions of `libopenssl`, `libopenssl-conf`, `openssl-util`, `drill` and `libldns` manually
+
+
