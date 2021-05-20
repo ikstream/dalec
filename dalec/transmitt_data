@@ -22,7 +22,7 @@ get_key()
 
   for i in $(seq 1 3);
   do
-    key=$key$(drill -t $DOMAIN TXT @8.8.8.8 | awk -F \;=\; "/pass$i/ { print $key_pos
+    key=$key$(drill -t $DOMAIN TXT | awk -F \;=\; "/pass$i/ { print $key_pos
   }" | tr -d '"')
   done
 
